@@ -5,9 +5,12 @@ import rsa.shared.PreferedMatch;
 import rsa.shared.RideRole;
 import rsa.shared.UserStars;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class User {
+public class User implements Serializable {
+
+    private static final long serialVersionUID = -8605666932017737115L;
 
     private String nick, name, password;
 
@@ -64,7 +67,6 @@ public class User {
             }
 
         }
-
 
     }
 

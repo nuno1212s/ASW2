@@ -1,6 +1,8 @@
 package rsa.shared;
 
-public enum UserStars {
+import java.io.Serializable;
+
+public enum UserStars implements Serializable {
 
     FIVE_STARS {
         @Override

@@ -1,6 +1,10 @@
 package rsa.shared;
 
-public class Car {
+import java.io.Serializable;
+
+public class Car implements Serializable {
+
+    private static final long serialVersionUID = -1245687592017737115L;
 
     private String plate, make, model, color;
 

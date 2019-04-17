@@ -6,40 +6,33 @@ import rsa.shared.RideMatchInfo;
 import rsa.shared.RideRole;
 import rsa.shared.UserStars;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Matcher {
+public class Matcher implements Serializable {
 
     private static Location topLeft, bottomRight;
 
     private static double radius;
 
-    private List<Ride> rides;
+    private Map<Long, Ride> rides;
 
     private PointQuadtree<Ride> quadTree;
 
     public Matcher() {
 
-        rides = new ArrayList<>();
+        rides = new HashMap<>();
         quadTree = new PointQuadtree<>(topLeft.getX(), topLeft.getY(), bottomRight.getX(), bottomRight.getY());
 
     }
 
-    public Ride getRideWithId(long rideId) {
-
-        for (Ride ride : rides) {
-
-            if (ride.getId() == rideId) {
-                return ride;
-            }
-
-        }
-
-        return null;
+    private Ride getRideWithId(long rideId) {
+        return rides.get(rideId);
     }
 
     public void acceptMatch(long rideId, long matchId) {
+
 
     }
 
@@ -49,12 +42,19 @@ public class Matcher {
 
         quadTree.insert(r);
 
+        rides.put(r.getId(), r);
+
         return r.getId();
 
     }
 
     public void concludeRide(long rideId, UserStars stars) {
 
+        Ride rideWithId = getRideWithId(rideId);
+
+        rideWithId.getUser().addStars(rideWithId.getRole(), stars);
+
+        rides.remove(rideId);
     }
 
     public static Location getBottomRight() {
@@ -95,11 +95,12 @@ public class Matcher {
 
             TreeSet<RideMatchInfo> rides = new TreeSet<>(r.getComparator());
 
-            Set<Ride> near = quadTree.findNear(r.getFrom().getX(), r.getFrom().getY(), radius);
+            Set<Ride> near = quadTree.findNear(r.getFrom().getX(), r.getFrom().getY(), Matcher.getRadius());
 
             near = near.stream()
                     .filter(r1 -> r1.getCurrentRideRole().other().equals(r.getCurrentRideRole())
-                            && r1.getTo().distance(r.getTo()) < radius)
+                            && r1.getTo().distance(r.getTo()) < Matcher.getRadius()
+                            && r1.getMatch() == null)
                     .collect(Collectors.toSet());
 
             for (Ride ride : near) {
@@ -156,6 +157,18 @@ public class Matcher {
 
                 }
 
+            }
+
+            if (!(getRide(RideRole.DRIVER).getMatch() == null && getRide(RideRole.PASSENGER).getMatch() == null)) {
+                return false;
+            }
+
+            if (!(getRide(RideRole.DRIVER).getFrom().distance(getRide(RideRole.PASSENGER).getFrom()) < Matcher.getRadius())) {
+                return false;
+            }
+
+            if (!(getRide(RideRole.DRIVER).getTo().distance(getRide(RideRole.PASSENGER).getTo()) < Matcher.getRadius())) {
+                return false;
             }
 
             return hasDriver;

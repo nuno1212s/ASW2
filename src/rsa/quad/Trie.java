@@ -100,6 +100,5 @@ public abstract class Trie<T extends HasPoint> {
         NW,
         SE,
         SW;
-
     }
 }

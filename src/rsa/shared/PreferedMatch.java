@@ -1,9 +1,11 @@
 package rsa.shared;
 
-public enum PreferedMatch  {
+import java.io.Serializable;
+
+public enum PreferedMatch implements Serializable {
 
     BETTER,
     CHEAPER,
-    CLOSER;
+    CLOSER
 
 }

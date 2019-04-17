@@ -1,6 +1,8 @@
 package rsa.shared;
 
-public enum RideRole {
+import java.io.Serializable;
+
+public enum RideRole implements Serializable {
 
     DRIVER,
     PASSENGER;
