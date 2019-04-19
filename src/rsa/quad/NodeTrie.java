@@ -43,7 +43,28 @@ public class NodeTrie<T extends HasPoint> extends Trie<T> {
 
     @Override
     T find(T point) {
-        return null;
+    	
+    	if (!buildRectangle().contains(point.getX(), point.getY())) {
+    		
+    		return null;
+    	}
+    	
+    	if (childs.isEmpty()) {
+    		return null;
+    	}
+    	
+    	for (Trie<T> subNode : this.childs.values()) {
+    		
+    		T found = subNode.find(point);
+    		
+    		if (found != null) {
+    			return found;
+    		}
+    		
+    	}
+    	
+    	return null;
+    	
     }
 
     @Override
@@ -53,7 +74,7 @@ public class NodeTrie<T extends HasPoint> extends Trie<T> {
             return null;
         }
 
-        if (!childs.isEmpty()) {
+        if (childs.isEmpty()) {
             divide(new ArrayList<>(0));
         }
 
@@ -104,15 +125,14 @@ public class NodeTrie<T extends HasPoint> extends Trie<T> {
         double x1 = topLeftX, x2 = bottomRightX;
 
         double y1 = topLeftY, y2 = bottomRightY;
-
-        this.childs.put(Quadrant.NW, new LeafTrie<>(Quadrant.NW, this, x1, y1, x2 + ((x1 - x2) / 2), y2 + ((y1 - y2) / 2)));
-
-        this.childs.put(Quadrant.NE, new LeafTrie<>(Quadrant.NE, this, x2 + ((x1 - x2) / 2), y1, x2, y2 + ((y1 - y2) / 2)));
-
-        this.childs.put(Quadrant.SW, new LeafTrie<>(Quadrant.SW, this, x1, y2 + ((y1 - y2) / 2), x2 + ((x1 - x2) / 2), y2 + ((y1 - y2) / 2)));
-
-        this.childs.put(Quadrant.SE, new LeafTrie<>(Quadrant.SE, this, x2 + ((x1 - x2) / 2), y2 + ((y1 - y2) / 2), x2, y2));
-
+        
+        double midX = x1 + ((x2 - x1) / 2), midY = y2 + ((y1 - y2) / 2);
+        
+        this.childs.put(Quadrant.NW, new LeafTrie<T> (Quadrant.NW, this, x1, y1, midX, midY));
+        this.childs.put(Quadrant.NE, new LeafTrie<T> (Quadrant.NE, this, midX, y1, x2, midY));
+        this.childs.put(Quadrant.SW, new LeafTrie<T> (Quadrant.SW, this, x1, midY, midX, y2));
+        this.childs.put(Quadrant.SE, new LeafTrie<T> (Quadrant.SE, this, midX, midY, x2, y2));
+        
         forx:
         for (T point : points) {
             for (Trie<T> value : this.childs.values()) {

@@ -1,7 +1,7 @@
 package rsa.service;
 
 import rsa.shared.Car;
-import rsa.shared.PreferedMatch;
+import rsa.shared.PreferredMatch;
 import rsa.shared.RideRole;
 import rsa.shared.UserStars;
 
@@ -12,13 +12,15 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = -8605666932017737115L;
 
-    private String nick, name, password;
+    private final String nick;
+    
+    private String name, password;
 
-    private List<Car> cars;
+    private Map<String, Car> cars;
 
     private Map<RideRole, List<UserStars>> userStars;
 
-    private PreferedMatch preferedMatch;
+    private PreferredMatch preferedMatch;
 
     public User(String nick, String name, String password) {
 
@@ -26,16 +28,16 @@ public class User implements Serializable {
         this.name = name;
         this.password = password;
 
-        this.cars = new ArrayList<>();
+        this.cars = new HashMap<>();
         this.userStars = new HashMap<>();
-        this.preferedMatch = PreferedMatch.BETTER;
+        this.preferedMatch = PreferredMatch.BETTER;
     }
 
     public void addCar(Car car) {
-        this.cars.add(car);
+        this.cars.put(car.getPlate(), car);
     }
 
-    public void addStars(RideRole role, UserStars stars) {
+    public void addStars(UserStars stars, RideRole role) {
         List<UserStars> userStars = this.userStars.getOrDefault(role, new ArrayList<>());
 
         userStars.add(stars);
@@ -43,31 +45,13 @@ public class User implements Serializable {
         this.userStars.put(role, userStars);
     }
 
-    public Car getCarWithPlate(String plate) {
+    public Car getCar(String plate) {
 
-        for (Car car : this.cars) {
-            if (car.getPlate().equalsIgnoreCase(plate)) {
-                return car;
-            }
-        }
-
-        return null;
+        return this.cars.get(plate);
     }
 
     public void deleteCar(String plate) {
-
-        Iterator<Car> it = this.cars.iterator();
-
-        while (it.hasNext()) {
-            Car car = it.next();
-
-            if (car.getPlate().equals(plate)) {
-                it.remove();
-                break;
-            }
-
-        }
-
+    	this.cars.remove(plate);
     }
 
     public float getAverage(RideRole role) {
@@ -76,6 +60,10 @@ public class User implements Serializable {
 
         List<UserStars> userStars = this.userStars.get(role);
 
+        if (userStars == null) {
+        	return 0;
+        }
+        
         for (UserStars userStar : userStars) {
 
             sum += userStar.getStars();
@@ -105,12 +93,16 @@ public class User implements Serializable {
         this.name = name;
     }
 
-    public PreferedMatch getPreferedMatch() {
-        return this.preferedMatch;
+    public PreferredMatch getPreferredMatch() {
+        return this.preferedMatch == null ? PreferredMatch.BETTER : this.preferedMatch;
     }
 
-    public void setPreferedMatch(PreferedMatch match) {
+    public void setPreferredMatch(PreferredMatch match) {
         this.preferedMatch = match;
+    }
+    
+    boolean authenticate(String password) {
+    	return this.password.equals(password);
     }
 
 }

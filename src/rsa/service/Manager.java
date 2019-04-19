@@ -2,9 +2,6 @@ package rsa.service;
 
 import rsa.shared.*;
 
-import java.util.Map;
-import java.util.SortedSet;
-
 public class Manager {
 
     private static Manager ins;
@@ -21,8 +18,6 @@ public class Manager {
     Users allUsers;
 
     Matcher matcher;
-
-    private Map<Long, SortedSet<RideMatchInfo>> matches;
 
     private Manager() throws RideSharingAppException {
 
@@ -52,7 +47,7 @@ public class Manager {
 
     public void acceptMatch(long rideId, long matchId) {
 
-
+        matcher.acceptMatch(rideId, matchId);
 
     }
 
@@ -74,23 +69,27 @@ public class Manager {
 
     }
 
-    public PreferedMatch getPreferredMatch(String nick, String password) throws RideSharingAppException {
+    public PreferredMatch getPreferredMatch(String nick, String password) throws RideSharingAppException {
 
         if (!authenticate(nick, password)) {
             throw new RideSharingAppException("Authentication failed");
         }
 
-        return allUsers.getUser(nick).getPreferedMatch();
+        return allUsers.getUser(nick).getPreferredMatch();
 
     }
 
-    public void setPreferredMatch(String nick, String password, PreferedMatch match) throws RideSharingAppException{
+    public void setPreferredMatch(String nick, String password, PreferredMatch match) throws RideSharingAppException{
 
         if (!authenticate(nick, password)) {
             throw new RideSharingAppException("Authentication failed");
         }
 
-        allUsers.getUser(nick).setPreferedMatch(match);
+        allUsers.getUser(nick).setPreferredMatch(match);
+    }
+    
+    void reset() {
+    	//TODO
     }
 
     public double getAverage(String nick, RideRole role) {

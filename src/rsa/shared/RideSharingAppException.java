@@ -2,7 +2,12 @@ package rsa.shared;
 
 public class RideSharingAppException extends Exception {
 
-    public RideSharingAppException() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5916264826815412970L;
+
+	public RideSharingAppException() {
         super();
     }
 

@@ -26,6 +26,10 @@ public class Location implements HasPoint {
         return Trie.getDistance(this.getX(), this.getY(), l.getX(), l.getY());
     }
 
+    public Location clone() {
+    	return new Location(x, y);
+    }
+    
     @Override
     public boolean equals(Object o) {
 

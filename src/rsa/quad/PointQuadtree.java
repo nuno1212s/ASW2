@@ -12,6 +12,10 @@ public class PointQuadtree<T extends HasPoint> {
         this.rootNode = new NodeTrie<>(topLeftX, topLeftY, bottomRightX, bottomRightY);
 
     }
+    
+    public T find(T point) {
+    	return rootNode.find(point);
+    }
 
     public void delete(T point) {
 
@@ -20,14 +24,18 @@ public class PointQuadtree<T extends HasPoint> {
     }
 
     public void insert(T point) {
-
-        rootNode.insert(point);
+    	
+        if (rootNode.insert(point) == null) {
+        	
+        	throw new PointOutOfBoundException();
+        	
+        }
 
     }
 
     public void insertReplace(T point) {
 
-        rootNode.insert(point);
+        rootNode.insertReplace(point);
 
     }
 

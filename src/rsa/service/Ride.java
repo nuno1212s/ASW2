@@ -18,7 +18,7 @@ public class Ride implements HasPoint, RideMatchInfoSorter {
 
     private User user;
 
-    private Location from, to;
+    private Location from, to, current;
 
     private String plate;
 
@@ -27,9 +27,11 @@ public class Ride implements HasPoint, RideMatchInfoSorter {
     public Ride(User user, Location from, Location to, String plate, float cost) {
 
         this.id = random.nextLong();
+        
         this.user = user;
-        this.from = from;
-        this.to = to;
+        this.from = from.clone();
+        this.current = from.clone();
+        this.to = to.clone();
 
         this.plate = plate;
 
@@ -52,6 +54,10 @@ public class Ride implements HasPoint, RideMatchInfoSorter {
     public Location getTo() {
         return this.to;
     }
+    
+    public Location getCurrent() {
+    	return this.current;
+    }
 
     public Matcher.RideMatch getMatch() {
         return match;
@@ -65,16 +71,12 @@ public class Ride implements HasPoint, RideMatchInfoSorter {
         return this.plate;
     }
 
-    public RideRole getRole() {
-        return null;
-    }
-
     public User getUser() {
         return this.user;
     }
 
     public boolean isDriver() {
-        return getRole() == RideRole.DRIVER;
+        return getRideRole() == RideRole.DRIVER;
     }
 
     public boolean isMatched() {
@@ -82,7 +84,7 @@ public class Ride implements HasPoint, RideMatchInfoSorter {
     }
 
     public boolean isPassenger() {
-        return getRole() == RideRole.PASSENGER;
+        return getRideRole() == RideRole.PASSENGER;
     }
 
     public void setCost(float cost) {
@@ -96,37 +98,81 @@ public class Ride implements HasPoint, RideMatchInfoSorter {
     public void setTo(Location to) {
         this.to = to;
     }
+    
+    public void setPlate(String plate) {
+    	this.plate = plate;
+    }
+    
+    public void setCurrent(Location current) {
+    	this.current = current;
+    }
 
-    public RideRole getCurrentRideRole() {
+    public RideRole getRideRole() {
         return this.plate == null ? RideRole.PASSENGER : RideRole.DRIVER;
     }
 
     @Override
     public double getX() {
-        return this.getFrom().getX();
+        return this.getCurrent().getX();
     }
 
     @Override
     public double getY() {
-        return this.getFrom().getY();
+        return this.getCurrent().getY();
     }
 
     @Override
     public Comparator<RideMatchInfo> getComparator() {
         return (ride1, ride2) -> {
 
-            switch (getUser().getPreferedMatch()) {
+            switch (getUser().getPreferredMatch()) {
                 case BETTER:
-                    return Double.compare(ride1.getStars(getCurrentRideRole().other()),
-                            ride2.getStars(getCurrentRideRole().other()));
+                    int i = -Double.compare(ride1.getStars(getRideRole().other()),
+                            ride2.getStars(getRideRole().other()));
+                    
+                    
+                    if (i == 0) {
+                    	break;
+                    }
+                    
+                    return i;
                 case CLOSER:
-                    return Double.compare(ride1.getWhere(getCurrentRideRole().other()).distance(getFrom()),
-                            ride2.getWhere(getCurrentRideRole().other()).distance(getFrom()));
+                	
+                    i = Double.compare(ride1.getWhere(getRideRole().other()).distance(getCurrent()),
+                            ride2.getWhere(getRideRole().other()).distance(getCurrent()));
+                    if (i == 0) {
+                    	break;
+                    }
+                    
+                    return i;
+                    
                 case CHEAPER:
-                    return Float.compare(ride1.getCost(), ride2.getCost());
+                    i = Float.compare(ride1.getCost(), ride2.getCost());
+                    
+                    if (i == 0) {
+                    	break;
+                    }
+                    
+                    return i;
             }
 
-            return 0;
+            return random.nextBoolean() ? 1 : -1;
         };
+    }
+    
+    public String toString() {
+    	return user.getNick();
+    }
+    
+    public int hashCode() {
+    	return ((Long) getId()).hashCode();
+    }
+    
+    public boolean equals(Object o) {
+    	if (o instanceof Ride) {
+    		return ((Ride) o).getId() == getId();
+    	}
+    	
+    	return false;
     }
 }

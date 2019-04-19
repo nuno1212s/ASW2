@@ -40,8 +40,9 @@ public abstract class Trie<T extends HasPoint> {
 
     abstract Trie<T> insertReplace(T point);
 
-    protected Rectangle2D buildRectangle() {
-        return new Rectangle2D.Double(this.topLeftX, this.topLeftY, this.bottomRightX, this.bottomRightY);
+    protected Rectangle buildRectangle() {
+    	
+        return new Rectangle(topLeftX, topLeftY, bottomRightX, bottomRightY);
     }
 
     /**
@@ -64,23 +65,20 @@ public abstract class Trie<T extends HasPoint> {
         double xc = center.getX(), yc = center.getY();
 
         double radiusSqrd = radius * radius;
+        
+        double testX = xc, testY = yc;
 
-        if (Math.pow(x1 - xc, 2) + Math.pow(y1 - yc, 2) <= radiusSqrd || Math.pow(x2 - xc, 2) + Math.pow(y1 - yc, 2) <= radiusSqrd) {
-            return true;
-        }
-
-        if (Math.pow(x1 - xc, 2) + Math.pow(y1 - yc, 2) <= radiusSqrd || Math.pow(x1 - xc, 2) + Math.pow(y2 - yc, 2) <= radiusSqrd) {
-            return true;
-        }
-        if (Math.pow(x2 - xc, 2) + Math.pow(y1 - yc, 2) <= radiusSqrd || Math.pow(x2 - xc, 2) + Math.pow(y2 - yc, 2) <= radiusSqrd) {
-            return true;
-        }
-        if (Math.pow(x1 - xc, 2) + Math.pow(y2 - yc, 2) <= radiusSqrd || Math.pow(x2 - xc, 2) + Math.pow(y2 - yc, 2) <= radiusSqrd) {
-            return true;
-        }
-
-        return false;
-
+        if (xc < x1) testX = x1;
+        else if (xc > x2) testX = x2;
+        
+        if (yc < y2) testY = y2;
+        else if (yc > y1) testY = y1;
+        
+        double dist1 = xc - testX, dist2 = yc - testY;
+        
+        double distance = Math.pow(dist1, 2) + Math.pow(dist2, 2);
+        
+        return distance <= radiusSqrd;
     }
 
     public static double getDistance(double x1, double y1, double x2, double y2) {
@@ -100,5 +98,28 @@ public abstract class Trie<T extends HasPoint> {
         NW,
         SE,
         SW;
+    }
+    
+    protected class Rectangle {
+    	
+    	double topLeftX, topLeftY, bottomRightX, bottomRightY;
+
+		public Rectangle(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY) {
+			this.topLeftX = topLeftX;
+			this.topLeftY = topLeftY;
+			this.bottomRightX = bottomRightX;
+			this.bottomRightY = bottomRightY;
+		}
+		
+		public boolean contains(Point2D center) {
+			return contains(center.getX(), center.getY());
+		}
+
+		public boolean contains(double x, double y) {
+			
+			 return this.topLeftX <= x && this.bottomRightX >= x && this.topLeftY >= y && this.bottomRightY <= y;
+			
+		}
+    	
     }
 }

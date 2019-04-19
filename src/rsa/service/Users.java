@@ -3,6 +3,8 @@ package rsa.service;
 import rsa.shared.RideSharingAppException;
 
 import java.io.*;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,11 +28,13 @@ public class Users implements Serializable {
 
         if (ins == null) {
 
-            if (getPlayersFile().exists()) {
+            if (getPlayersFile() != null && getPlayersFile().exists()) {
 
                 restore();
 
             }
+            
+            ins = new Users();
 
         }
 
@@ -40,10 +44,29 @@ public class Users implements Serializable {
     private Map<String, User> users;
 
     private Users() {
-
+    	
+    	try {
+			String path = getProgramPath2();
+			
+			String finalPath = path + File.separator + "Users" + File.separator + "users.txt";
+			
+			setPlayersFile(new File(finalPath));
+			
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
         users = new ConcurrentHashMap<>();
 
     }
+    
+    private String getProgramPath2() throws UnsupportedEncodingException {
+        URL url = Users.class.getProtectionDomain().getCodeSource().getLocation();
+        String jarPath = URLDecoder.decode(url.getFile(), "UTF-8");
+        String parentPath = new File(jarPath).getParentFile().getPath();
+        return parentPath;
+     }
 
     public User getUser(String nick) {
 
@@ -53,10 +76,19 @@ public class Users implements Serializable {
 
     boolean register(String nick, String name, String password) throws RideSharingAppException {
 
+    	if (users.containsKey(nick)) {
+    		System.out.println(users);
+    		return false;
+    	}
+    	
         boolean valid = true;
 
         for (int i = 0; i < nick.length(); i++) {
             valid &= (Character.isLetterOrDigit(nick.charAt(i)) || nick.charAt(i) == '_');
+            
+            if (!valid) {
+            	System.out.println(nick.charAt(i));
+            }
         }
 
         if (valid) {
@@ -64,10 +96,11 @@ public class Users implements Serializable {
 
             users.put(nick, user);
 
-            backup();
+            //backup();
+            return true;
         }
 
-        return valid;
+        return false;
     }
 
     boolean authenticate(String nick, String password) {
@@ -76,7 +109,7 @@ public class Users implements Serializable {
 
         if (user != null) {
 
-            return user.getPassword().equals(password);
+            return user.authenticate(password);
 
         }
 
@@ -91,7 +124,7 @@ public class Users implements Serializable {
 
             user.setPassword(newPassword);
 
-            backup();
+            //backup();
 
             return true;
         }
@@ -100,6 +133,19 @@ public class Users implements Serializable {
     }
 
     private static void backup() throws RideSharingAppException {
+    	
+    	if (!getPlayersFile().exists()) {
+    		
+    		try {
+    			
+    			getPlayersFile().createNewFile();
+    		
+    		} catch (IOException e) {
+    			
+    			throw new RideSharingAppException("Error while backing up", e);
+    			
+    		}
+    	}
 
         try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(getPlayersFile()))) {
 
@@ -126,12 +172,19 @@ public class Users implements Serializable {
         }
 
     }
+    
+    private static void deleteFile() {
+    	
+    	getPlayersFile().delete();
+    	
+    }
 
     void reset() {
-        ins = new Users();
-
-        getPlayersFile().delete();
+        ins.users = new ConcurrentHashMap<>();
+        
+        deleteFile();
     }
+   
 
     protected Object readResolve() {
         try {

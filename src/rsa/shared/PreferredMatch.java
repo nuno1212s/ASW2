@@ -2,7 +2,7 @@ package rsa.shared;
 
 import java.io.Serializable;
 
-public enum PreferedMatch implements Serializable {
+public enum PreferredMatch implements Serializable {
 
     BETTER,
     CHEAPER,

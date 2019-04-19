@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import rsa.service.Ride;
 
 public class LeafTrie<T extends HasPoint> extends Trie<T> {
 
@@ -13,6 +14,14 @@ public class LeafTrie<T extends HasPoint> extends Trie<T> {
     private NodeTrie<T> parent;
 
     protected List<T> points;
+    
+    protected LeafTrie(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY) {
+    	super(topLeftX, topLeftY, bottomRightX, bottomRightY);
+    	
+    
+    	this.points = new ArrayList<>(getCapacity());
+    	
+    }
 
     protected LeafTrie(Quadrant q, NodeTrie<T> parent, double topLeftX, double topLeftY, double bottomRightX, double bottomRightY) {
         super(topLeftX, topLeftY, bottomRightX, bottomRightY);
@@ -39,7 +48,7 @@ public class LeafTrie<T extends HasPoint> extends Trie<T> {
         for (T point : this.points) {
 
             Point2D ponto = new Point2D.Double(point.getX(), point.getY());
-
+            
             if (ponto.distanceSq(center) <= sqrdRadius) {
 
                 points.add(point);
@@ -69,8 +78,8 @@ public class LeafTrie<T extends HasPoint> extends Trie<T> {
         }
 
         for (T t : this.points) {
-            if (t.getX() == point.getX() && t.getY() == point.getY()) {
-                return t;
+            if (t.equals(point)) {
+            	return t;
             }
         }
 
@@ -81,10 +90,11 @@ public class LeafTrie<T extends HasPoint> extends Trie<T> {
     Trie<T> insert(T point) {
 
         if (!buildRectangle().contains(point.getX(), point.getY())) {
+        	
             return null;
         }
 
-        if (this.points.size() > getCapacity()) {
+        if (this.points.size() >= getCapacity()) {
             return this.divide().insert(point);
         }
 
@@ -114,9 +124,9 @@ public class LeafTrie<T extends HasPoint> extends Trie<T> {
 
             T p = iterator.next();
 
-            if (p.getX() == point.getX() && p.getY() == point.getY()) {
-                iterator.remove();
-                break;
+            if (p.equals(point)) {
+            	iterator.remove();
+            	break;
             }
         }
     }
