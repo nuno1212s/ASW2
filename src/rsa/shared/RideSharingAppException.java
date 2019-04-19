@@ -1,5 +1,8 @@
 package rsa.shared;
 
+/**
+ * An exception raised by the ride sharing service
+ */
 public class RideSharingAppException extends Exception {
 
     /**

@@ -10,6 +10,9 @@ public class NodeTrie<T extends HasPoint> extends Trie<T> {
         super(topLeftX, topLeftY, bottomRightX, bottomRightY);
     }
 
+    /**
+     * Collect all points in this node and its descendants in given set
+     */
     @Override
     void collectAll(Set<T> points) {
         childs.values().forEach((point) -> {
@@ -19,6 +22,9 @@ public class NodeTrie<T extends HasPoint> extends Trie<T> {
         });
     }
 
+    /**
+     * Collect points at a distance smaller or equal to radius from (x,y) and place them in given list
+     */
     @Override
     void collectNear(double x, double y, double radius, Set<T> points) {
 
@@ -30,6 +36,9 @@ public class NodeTrie<T extends HasPoint> extends Trie<T> {
 
     }
 
+    /**
+     * Delete given point
+     */
     @Override
     void delete(T point) {
 
@@ -41,6 +50,9 @@ public class NodeTrie<T extends HasPoint> extends Trie<T> {
 
     }
 
+    /**
+     * Find a recorded point with the same coordinates of given point
+     */
     @Override
     T find(T point) {
     	
@@ -67,6 +79,9 @@ public class NodeTrie<T extends HasPoint> extends Trie<T> {
     	
     }
 
+    /**
+     * Insert given point
+     */
     @Override
     Trie<T> insert(T point) {
 
@@ -93,6 +108,9 @@ public class NodeTrie<T extends HasPoint> extends Trie<T> {
         return null;
     }
 
+    /**
+     * Insert given point, replacing existing points in same location
+     */
     @Override
     Trie<T> insertReplace(T point) {
         if (!buildRectangle().contains(point.getX(), point.getY())) {
@@ -114,12 +132,18 @@ public class NodeTrie<T extends HasPoint> extends Trie<T> {
         return null;
     }
 
+    /**
+     * Updates the value of a subchild from a given quadrant to the new value
+     */
     protected void updateSubChild(Quadrant q, Trie<T> newChild) {
 
         this.childs.put(q, newChild);
 
     }
 
+    /**
+     * Divides the current NodeTrie and creates 4 childs
+     */
     protected void divide(List<T> points) {
 
         double x1 = topLeftX, x2 = bottomRightX;

@@ -4,6 +4,11 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Set;
 
+/**
+ * Abstract class common to all classes implementing the trie structure.
+ * Defines methods required by those classes and provides general methods for checking overlaps and computing distances.
+ * This class corresponds to the Component in the Composite design pattern.
+ */
 public abstract class Trie<T extends HasPoint> {
 
     protected double bottomRightX, bottomRightY;
@@ -32,23 +37,30 @@ public abstract class Trie<T extends HasPoint> {
      */
     abstract void collectNear(double x, double y, double radius, Set<T> points);
 
+    /**
+     * Delete given point
+     */
     abstract void delete(T point);
 
+    /**
+     * Find a recorded point with the same coordinates of given point
+     */
     abstract T find(T point);
 
+    /**
+     * Insert given point
+     */
     abstract Trie<T> insert(T point);
 
+    /**
+     * Insert given point, replacing existing points in same location
+     */
     abstract Trie<T> insertReplace(T point);
-
-    protected Rectangle buildRectangle() {
-    	
-        return new Rectangle(topLeftX, topLeftY, bottomRightX, bottomRightY);
-    }
 
     /**
      * Check if the rectangle from this point overlaps with a circle centered in (x,y) with radius radius
      */
-    protected boolean overlaps(double x, double y, double radius) {
+    boolean overlaps(double x, double y, double radius) {
 
         Point2D center = new Point2D.Double(x, y);
 
@@ -56,6 +68,17 @@ public abstract class Trie<T extends HasPoint> {
                 intersectsEdges(center, radius));
     }
 
+    /**
+     * Builds a rectangle with the dimensions of the quad tree
+     */
+    Rectangle buildRectangle() {
+
+        return new Rectangle(topLeftX, topLeftY, bottomRightX, bottomRightY);
+    }
+
+    /**
+     * Checks if a circle intersects with this nodes area
+     */
     private boolean intersectsEdges(Point2D center, double radius) {
 
         double x1 = topLeftX, x2 = bottomRightX;
@@ -81,14 +104,23 @@ public abstract class Trie<T extends HasPoint> {
         return distance <= radiusSqrd;
     }
 
+    /**
+     * Get's the euclidian distance between two points
+     */
     public static double getDistance(double x1, double y1, double x2, double y2) {
         return new Point2D.Double(x1, y1).distance(new Point2D.Double(x2, y2));
     }
 
+    /**
+     * The capacity of each leaf node
+     */
     public static int getCapacity() {
         return capacity;
     }
 
+    /**
+     * Set the capacity of each leaf node
+     */
     public static void setCapacity(int cap) {
         capacity = cap;
     }
@@ -99,7 +131,10 @@ public abstract class Trie<T extends HasPoint> {
         SE,
         SW;
     }
-    
+
+    /**
+     * Rectangle utility class
+     */
     protected class Rectangle {
     	
     	double topLeftX, topLeftY, bottomRightX, bottomRightY;
@@ -110,15 +145,20 @@ public abstract class Trie<T extends HasPoint> {
 			this.bottomRightX = bottomRightX;
 			this.bottomRightY = bottomRightY;
 		}
-		
+
+        /**
+         * Check if a point is contained within the rectangle
+         */
 		public boolean contains(Point2D center) {
 			return contains(center.getX(), center.getY());
 		}
 
+        /**
+         * Check if a point is contained within the rectangle
+         */
 		public boolean contains(double x, double y) {
-			
-			 return this.topLeftX <= x && this.bottomRightX >= x && this.topLeftY >= y && this.bottomRightY <= y;
-			
+			 return this.topLeftX <= x && this.bottomRightX >= x
+                     && this.topLeftY >= y && this.bottomRightY <= y;
 		}
     	
     }

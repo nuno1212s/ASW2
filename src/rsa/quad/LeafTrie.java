@@ -9,10 +9,19 @@ import rsa.service.Ride;
 
 public class LeafTrie<T extends HasPoint> extends Trie<T> {
 
+    /**
+     * The quadrant of this leaf node, makes things easier when dividing this node
+     */
     private Quadrant quadrant;
 
+    /**
+     * The parent of this node, required to divide when this leaf node is full
+     */
     private NodeTrie<T> parent;
 
+    /**
+     * The points stored in this leaf node
+     */
     protected List<T> points;
     
     protected LeafTrie(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY) {
@@ -31,6 +40,9 @@ public class LeafTrie<T extends HasPoint> extends Trie<T> {
         points = new ArrayList<>(getCapacity());
     }
 
+    /**
+     * Collects all points in this node and descendants in the given set
+     */
     @Override
     void collectAll(Set<T> points) {
 
@@ -38,6 +50,9 @@ public class LeafTrie<T extends HasPoint> extends Trie<T> {
 
     }
 
+    /**
+     * Collects points at a distance smaller or equal to radius from (x,y) and place them in the given list
+     */
     @Override
     void collectNear(double x, double y, double radius, Set<T> points) {
 
@@ -59,6 +74,9 @@ public class LeafTrie<T extends HasPoint> extends Trie<T> {
 
     }
 
+    /**
+     * Delete given point
+     */
     @Override
     void delete(T point) {
 
@@ -70,6 +88,9 @@ public class LeafTrie<T extends HasPoint> extends Trie<T> {
 
     }
 
+    /**
+     * Insert given point, replacing existing points in same location
+     */
     @Override
     T find(T point) {
 
@@ -86,6 +107,9 @@ public class LeafTrie<T extends HasPoint> extends Trie<T> {
         return null;
     }
 
+    /**
+     * Insert given point
+     */
     @Override
     Trie<T> insert(T point) {
 
@@ -103,6 +127,9 @@ public class LeafTrie<T extends HasPoint> extends Trie<T> {
         return this;
     }
 
+    /**
+     * Insert given point, replacing existing points in same location
+     */
     @Override
     Trie<T> insertReplace(T point) {
 
@@ -117,6 +144,9 @@ public class LeafTrie<T extends HasPoint> extends Trie<T> {
         return this;
     }
 
+    /**
+     * Finds and removes a point from the stored points
+     */
     private void findAndRemove(T point) {
         Iterator<T> iterator = this.points.iterator();
 
@@ -131,10 +161,14 @@ public class LeafTrie<T extends HasPoint> extends Trie<T> {
         }
     }
 
+    /**
+     * Divides this leaf node and returns the NodeTrie that it generates
+     */
     private Trie<T> divide() {
 
         NodeTrie<T> newNode = new NodeTrie<>(topLeftX, topLeftY, bottomRightX, bottomRightY);
 
+        //Update the parent of this leaf node to note that this node is now a NodeTrie, not a LeafTrie
         this.parent.updateSubChild(this.quadrant, newNode);
 
         newNode.divide(this.points);

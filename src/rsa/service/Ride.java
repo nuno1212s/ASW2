@@ -7,6 +7,7 @@ import rsa.shared.RideRole;
 
 import java.util.Comparator;
 import java.util.Random;
+import java.util.SortedSet;
 
 public class Ride implements HasPoint, RideMatchInfoSorter {
 
@@ -21,6 +22,8 @@ public class Ride implements HasPoint, RideMatchInfoSorter {
     private Location from, to, current;
 
     private String plate;
+
+    private SortedSet<RideMatchInfo> matches;
 
     private Matcher.RideMatch match;
 
@@ -121,6 +124,14 @@ public class Ride implements HasPoint, RideMatchInfoSorter {
         return this.getCurrent().getY();
     }
 
+    /**
+     * Gets the suitable comparator for this ride
+     *
+     * Returns a random order if the rides have equal value because in the TreeSet implementation
+     * If the comparator returns 0, the elements are considered as equal and are not added to the set
+     *
+     * @return the comparing order
+     */
     @Override
     public Comparator<RideMatchInfo> getComparator() {
         return (ride1, ride2) -> {
