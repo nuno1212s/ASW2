@@ -9,6 +9,17 @@ import java.util.Comparator;
 import java.util.Random;
 import java.util.SortedSet;
 
+/**
+ * A user's (intention to) ride between two locations.
+ * The user can be either the driver of the passenger.
+ * There will be an attempt to match this ride with another of complementary type.
+ * That is driver's rides will be matched with passenger's rides and vice versa.
+ *
+ * This class provides a comparator of ride matches adjusted to this ride.
+ * Ride matches are sent to clients as RideMatchInfo instances.
+ * If more than one is available then they are sorted.
+ * The order depends on ride that is being matched.
+ */
 public class Ride implements HasPoint, RideMatchInfoSorter {
 
     private static final Random random = new Random();
@@ -22,8 +33,6 @@ public class Ride implements HasPoint, RideMatchInfoSorter {
     private Location from, to, current;
 
     private String plate;
-
-    private SortedSet<RideMatchInfo> matches;
 
     private Matcher.RideMatch match;
 
@@ -42,74 +51,154 @@ public class Ride implements HasPoint, RideMatchInfoSorter {
 
     }
 
+    /**
+     * Generated unique identifier of this ride.
+     * @return this ride identifier
+     */
     public long getId() {
         return this.id;
     }
 
+    /**
+     * Cost of this ride (only meaningful for for driver)
+     * @return cost
+     */
     public float getCost() {
         return this.cost;
     }
 
+    /**
+     * Get the origin of this ride
+     * @return the from
+     */
     public Location getFrom() {
         return this.from;
     }
 
+    /**
+     * Get destination of this ride
+     * @return the to
+     */
     public Location getTo() {
         return this.to;
     }
-    
+
+    /**
+     * Current location
+     * @return the current
+     */
     public Location getCurrent() {
     	return this.current;
     }
 
+    /**
+     * Current match of this ride
+     * @return the match
+     */
     public Matcher.RideMatch getMatch() {
         return match;
     }
 
+    /**
+     * Assign a match to this ride
+     * @param match the match to set
+     */
     public void setMatch(Matcher.RideMatch match) {
         this.match = match;
     }
 
+    /**
+     * Car's registration plate for this ride
+     * @return the plate (null if passenger)
+     */
     public String getPlate() {
         return this.plate;
     }
 
+    /**
+     * User of this ride
+     * @return the user
+     */
     public User getUser() {
         return this.user;
     }
 
+    /**
+     * Is the user the driver in this ride?
+     * @return true if user is the driver; false otherwise
+     */
     public boolean isDriver() {
         return getRideRole() == RideRole.DRIVER;
     }
 
+    /**
+     * This ride was match with another
+     * @return true is this ride is matched
+     */
     public boolean isMatched() {
         return getMatch() != null;
     }
 
+    /**
+     * Is the user the passenger in this ride?
+     * @return true if user is the passenger; false otherwise
+     */
     public boolean isPassenger() {
         return getRideRole() == RideRole.PASSENGER;
     }
 
+    /**
+     * Change cost of this ride (only meaningful for for driver)
+     * @param cost the cost to set
+     */
     public void setCost(float cost) {
         this.cost = cost;
     }
 
+    /**
+     * Change the origin of this ride
+     * @param from the from to set
+     */
     public void setFrom(Location from) {
         this.from = from;
     }
 
+    /**
+     * Change user of this ride
+     * @param user to set
+     */
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    /**
+     * Change destination of this ride
+     * @param to the to to set
+     */
     public void setTo(Location to) {
         this.to = to;
     }
-    
+
+    /**
+     * Change car registration plate for this ride
+     * @param plate of car to set (null if passenger)
+     */
     public void setPlate(String plate) {
     	this.plate = plate;
     }
-    
+
+    /**
+     * Change current location
+     * @param current the current to set
+     */
     public void setCurrent(Location current) {
     	this.current = current;
     }
 
+    /**
+     * Role of user in ride, depending on a car's license plate being registered
+     * @return {@link RideRole} depending on plate
+     */
     public RideRole getRideRole() {
         return this.plate == null ? RideRole.PASSENGER : RideRole.DRIVER;
     }
